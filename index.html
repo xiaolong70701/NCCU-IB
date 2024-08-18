@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCCU IB Filer</title>
+    <title>政大國貿所課程檔案上傳系統</title>
     <link rel="icon" href="./uploader.svg" type="image/x-icon"/>
     <style>
         body {
@@ -26,7 +26,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
-            margin: auto;
+            margin: auto; /* 上 右 下 左 */
         }
         .logo {
             max-width: 150px; /* 設定 logo 寬度 */
@@ -55,7 +55,7 @@
             padding: 50px;
             border: 2px dashed #008CBA;
             border-radius: 8px;
-            background-color: #eef;
+            background-color: #F0F0F0;
             color: #008CBA;
             font-size: 16px;
             cursor: pointer;
@@ -152,7 +152,7 @@
         <a href="https://docs.google.com/spreadsheets/d/1F3XrKD91mqBJj5ojyWRdyVShiOOK9IqNN1gAwQRXyxo/edit?usp=drive_link" target="_blank">檔案列表</a>
     </nav>
     <div class="container">
-        <h1>檔案上傳</h1>
+        <h2>檔案上傳</h2>
         <label for="courseSelect">選擇課程</label>
         <select id="courseSelect">
             <option value="國際財務管理">國際財務管理</option>
@@ -198,12 +198,16 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>使用說明</h2>
+            歡迎來到本系統，以下是使用說明：
             <ul>
             <li>
                 選擇課程、年度並上傳文件。
             </li>
             <li>
-                如果未指定檔名，系統將預設使用上傳檔案的原始名稱。不過，建議修改檔案名稱，以便其他使用者能更快速地找到相關檔案。
+                如果未指定檔名，系統將預設使用上傳檔案的原始名稱。不過，<b>建議修改檔案名稱</b>，以便其他使用者能更快速找到相關檔案。
+            </li>
+            <li>
+                如有任何問題，請以電子郵件聯繫我：<a href="mailto:xiaolong70701@gmail.com" style="color: #004F6F;">xiaolong70701@gmail.com</a>，截圖並以簡短文字說明欲回報錯誤。
             </li>
             </ul>              
         </div>
@@ -223,7 +227,7 @@
         let uploadedFileName = document.getElementById("uploadedFileName");
         let uploadTime = document.getElementById("uploadTime");
         let selectedFile = null;
-
+        
         // 當課程選擇為“其他”時顯示輸入框
         courseSelect.addEventListener('change', () => {
             if (courseSelect.value === "其他") {
