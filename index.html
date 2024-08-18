@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCCU IB Filer</title>
+    <link rel="icon" href="./uploader.svg" type="image/x-icon"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            margin: 80px auto 200px auto;
+            right: 150px;
+            max-height: 600px;
+            background-color: #f0f0f0;
+            background-image: url('https://commerce.nccu.edu.tw/uploads/asset/data/5f0684e91d41c878d9000214/DSC00819.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin: auto;
+        }
+        .logo {
+            max-width: 150px; /* 設定 logo 寬度 */
+            margin-bottom: 20px; /* 與下方內容保持一定距離 */
+        }
+        nav {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+        nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #004F6F;
+        }
+        h1 {
+            color: #333;
+        }
+        #dropZone {
+            margin-top: 20px;
+            padding: 50px;
+            border: 2px dashed #008CBA;
+            border-radius: 8px;
+            background-color: #eef;
+            color: #008CBA;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #dropZone:hover {
+            background-color: #d0e7ff;
+        }
+        #fileInput {
+            display: none;
+        }
+        #fileName {
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        #uploadButton {
+            margin-top: 1rem;
+            padding: 10px 20px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #uploadButton:hover {
+            background-color: #007B9A;
+        }
+        #uploadButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #courseSelect, #yearSelect, #courseInput, #fileNameInput {
+            margin-top: 1rem;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #courseInput {
+            display: none;
+        }
+        #uploadDetails {
+            margin-top: 2rem;
+            text-align: left;
+            font-size: 14px;
+            color: #555;
+            display: none;
+        }
+        /* 彈出窗口的樣式 */
+        #popupModal {
+            display: none; /* 初始状态下隐藏 */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4); /* 半透明背景 */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="https://ib.nccu.edu.tw/" target="_blank">政大國貿系</a>
+        <a href="https://drive.google.com/drive/folders/1ygySYGVLHBvMcXVTqH7klXK-bc4dJnm6?usp=sharing" target="_blank">雲端硬碟</a>
+        <a href="https://docs.google.com/spreadsheets/d/1F3XrKD91mqBJj5ojyWRdyVShiOOK9IqNN1gAwQRXyxo/edit?usp=drive_link" target="_blank">檔案列表</a>
+    </nav>
+    <div class="container">
+        <h1>檔案上傳</h1>
+        <label for="courseSelect">選擇課程</label>
+        <select id="courseSelect">
+            <option value="國際財務管理">國際財務管理</option>
+            <option value="國際金融">國際金融</option>
+            <option value="國際貿易與投資">國際貿易與投資</option>
+            <option value="國際企業策略與管理">國際企業策略與管理</option>
+            <option value="國際行銷管理">國際行銷管理</option>
+            <option value="國際經貿法">國際經貿法</option>
+            <option value="國際金融法專題（一）">國際金融法專題（一）</option>
+            <option value="國際金融法專題（二）">國際金融法專題（二）</option>
+            <option value="財務經濟（一）">財務經濟（一）</option>
+            <option value="財務經濟（二）">財務經濟（二）</option>
+            <option value="計量經濟學（一）">計量經濟學（一）</option>
+            <option value="計量經濟學（二）">計量經濟學（二）</option>
+            <option value="數位行銷">數位行銷</option>
+            <option value="財務管理">財務管理</option>
+            <option value="個體經濟理論">個體經濟理論</option>
+            <option value="國際投資法">國際投資法</option>
+            <option value="其他">其他課程</option>
+        </select>
+        <input type="text" id="courseInput" placeholder="請輸入課程名稱">
+
+        <br><br>
+        <label for="yearSelect">選擇修課學年</label>
+        <select id="yearSelect">
+            <option value="110">110</option>
+            <option value="111">111</option>
+            <option value="112">112</option>
+            <option value="113">113</option>
+        </select>
+        <br><br>
+        <div id="dropZone">點擊這裡或拖放文件進行上傳</div>
+        <input type="file" id="fileInput">
+        <div id="fileName"></div>
+        <br><br>
+        <label for="fileNameInput">檔案名稱（可選填）</label>
+        <input type="text" id="fileNameInput" placeholder="留空使用原始檔名">
+        <button id="uploadButton" disabled>確認上傳</button>
+    </div>
+
+    <!-- 彈出窗口的內容 -->
+    <div id="popupModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>使用說明</h2>
+            <ul>
+            <li>
+                選擇課程、年度並上傳文件。
+            </li>
+            <li>
+                如果未指定檔名，系統將預設使用上傳檔案的原始名稱。不過，建議修改檔案名稱，以便其他使用者能更快速地找到相關檔案。
+            </li>
+            </ul>              
+        </div>
+    </div>
+
+    <script>
+        let url = "https://script.google.com/macros/s/AKfycbzA5EOWfnUoVcH6A6ERS7KaIuC3NNNznudgxQV9_XPN-4CLPWKzr5DFGT8vaV51L86f/exec";
+        let dropZone = document.getElementById("dropZone");
+        let fileInput = document.getElementById("fileInput");
+        let fileNameDisplay = document.getElementById("fileName");
+        let fileNameInput = document.getElementById("fileNameInput");
+        let uploadButton = document.getElementById("uploadButton");
+        let courseSelect = document.getElementById("courseSelect");
+        let courseInput = document.getElementById("courseInput");
+        let yearSelect = document.getElementById("yearSelect");
+        let uploadDetails = document.getElementById("uploadDetails");
+        let uploadedFileName = document.getElementById("uploadedFileName");
+        let uploadTime = document.getElementById("uploadTime");
+        let selectedFile = null;
+
+        // 當課程選擇為“其他”時顯示輸入框
+        courseSelect.addEventListener('change', () => {
+            if (courseSelect.value === "其他") {
+                courseInput.style.display = "block";
+            } else {
+                courseInput.style.display = "none";
+                courseInput.value = ""; // 清空輸入框的值
+            }
+        });
+
+        // 文件選擇和拖放處理
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#d0e7ff';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            dropZone.style.backgroundColor = '#eef';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#eef';
+            selectedFile = e.dataTransfer.files[0];
+            fileNameDisplay.textContent = "已選擇檔案: " + selectedFile.name;
+            uploadButton.disabled = false;
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                selectedFile = fileInput.files[0];
+                fileNameDisplay.textContent = "已選擇檔案: " + selectedFile.name;
+                uploadButton.disabled = false;
+            } else {
+                fileNameDisplay.textContent = "";
+                uploadButton.disabled = true;
+            }
+        });
+
+        uploadButton.addEventListener('click', () => {
+            if (selectedFile) {
+                let fr = new FileReader();
+                fr.addEventListener('loadend', () => {
+                    let res = fr.result;
+                    let spt = res.split("base64,")[1];
+
+                    // 獲取選擇的課程名稱或使用者輸入的名稱
+                    let courseName = courseSelect.value === "其他" ? courseInput.value.trim() : courseSelect.value;
+
+                    // 獲取原始文件的副檔名
+                    let originalFileName = selectedFile.name;
+                    let fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+                    
+                    // 使用者輸入的名稱或原始名稱，並加上副檔名
+                    let fileName = (fileNameInput.value.trim() || originalFileName.replace(/\.[^/.]+$/, "")) + fileExtension;
+
+                    let obj = {
+                        base64: spt,
+                        type: selectedFile.type,
+                        name: fileName, // 使用選定的檔案名稱
+                        course: courseName, // 使用選定的或自定義的課程名稱
+                        year: yearSelect.value // 添加選擇的年度
+                    }
+                    fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj)
+                    })
+                    .then(r => r.text())
+                    .then(data => {
+                        console.log(data);
+                        alert("檔案上傳成功！");
+                        
+                        // 顯示上傳細節
+                        uploadedFileName.textContent = fileName;
+                        uploadTime.textContent = new Date().toLocaleString();
+                        uploadDetails.style.display = 'block';
+
+                        // 重置表單
+                        fileInput.value = "";
+                        fileNameInput.value = "";
+                        fileNameDisplay.textContent = "";
+                        uploadButton.disabled = true;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("上傳失敗，請稍後再試！");
+                    });
+                });
+                fr.readAsDataURL(selectedFile);
+            }
+        });
+
+        // 彈出窗口的 JavaScript
+        var modal = document.getElementById("popupModal");
+        var span = document.getElementsByClassName("close")[0];
+
+        // 打開窗口
+        window.onload = function() {
+            modal.style.display = "block";
+        }
+
+        // 關閉窗口
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // 點擊窗口外部關閉窗口
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
