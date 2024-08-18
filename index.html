@@ -13,7 +13,7 @@
             right: 150px;
             max-height: 600px;
             background-color: #f0f0f0;
-            background-image: url('https://commerce.nccu.edu.tw/uploads/asset/data/5f0684e91d41c878d9000214/DSC00819.jpg');
+            background-image: url('./NCCU-commerce.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -311,10 +311,10 @@
                         fileNameDisplay.textContent = "";
                         uploadButton.disabled = true;
                     })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert("上傳失敗，請稍後再試！");
-                    });
+                    // .catch(error => {
+                    //     console.error('Error:', error);
+                    //     alert("上傳失敗，請稍後再試！");
+                    // });
                 });
                 fr.readAsDataURL(selectedFile);
             }
