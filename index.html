@@ -149,6 +149,45 @@
             text-decoration: none;
             cursor: pointer;
         }
+        /* 浮動的描述輸入框樣式 */
+        #descriptionModal {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        #descriptionModal textarea {
+            width: 95%;
+            height: 250px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 14px;
+            resize: none; /* 禁止使用者改變文字框大小 */
+            overflow-y: auto; /* 垂直方向啟用捲軸 */
+            overflow-x: hidden; /* 禁止水平方向的捲軸 */
+        }
+        #descriptionModal button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        #descriptionModal button:hover {
+            background-color: #007B9A;
+        }
+        
     </style>
 </head>
 <body>
@@ -196,7 +235,20 @@
         <br><br>
         <label for="fileNameInput">檔案名稱（可選填）</label>
         <input type="text" id="fileNameInput" placeholder="留空使用原始檔名">
+        
+        <!-- 新增描述的勾選框 -->
+        <br><br>
+        <input type="checkbox" id="addDescription" name="addDescription">
+        <label for="addDescription">提供修課心得</label>
+        <br><br>
+
         <button id="uploadButton" disabled>確認上傳</button>
+    </div>
+
+    <!-- 浮動的描述輸入框 -->
+    <div id="descriptionModal">
+        <textarea id="modalDescription" rows="4" placeholder="請寫下修課的心得吧 ٩(๑•̀ω•́๑)۶"></textarea>
+        <button id="saveDescriptionButton">儲存</button>
     </div>
 
     <!-- 彈出窗口的內容 -->
@@ -220,7 +272,7 @@
     </div>
 
     <script>
-        let url = "https://script.google.com/macros/s/AKfycbzA5EOWfnUoVcH6A6ERS7KaIuC3NNNznudgxQV9_XPN-4CLPWKzr5DFGT8vaV51L86f/exec";
+        let url = "https://script.google.com/macros/s/AKfycbw90ZDNEo1bzbh6JM-SreTOe7Q12r3HDqn-sspoNt2hOQqj-A7S0w8nx_wH-no3bIxD/exec";
         let dropZone = document.getElementById("dropZone");
         let fileInput = document.getElementById("fileInput");
         let fileNameDisplay = document.getElementById("fileName");
@@ -229,11 +281,14 @@
         let courseSelect = document.getElementById("courseSelect");
         let courseInput = document.getElementById("courseInput");
         let yearSelect = document.getElementById("yearSelect");
-        let uploadDetails = document.getElementById("uploadDetails");
-        let uploadedFileName = document.getElementById("uploadedFileName");
-        let uploadTime = document.getElementById("uploadTime");
+        let addDescriptionCheckbox = document.getElementById("addDescription");
+        let descriptionArea = document.getElementById("descriptionArea");
+        let modalDescription = document.getElementById("modalDescription");
+        let saveDescriptionButton = document.getElementById("saveDescriptionButton");
+        let descriptionModal = document.getElementById("descriptionModal");
         let selectedFile = null;
-        
+        let savedDescription = "";
+
         // 當課程選擇為“其他”時顯示輸入框
         courseSelect.addEventListener('change', () => {
             if (courseSelect.value === "其他") {
@@ -277,6 +332,23 @@
             }
         });
 
+        // 處理描述區域的顯示
+        addDescriptionCheckbox.addEventListener('change', () => {
+            if (addDescriptionCheckbox.checked) {
+                descriptionModal.style.display = 'block';
+            } else {
+                descriptionModal.style.display = 'none';
+            }
+        });
+
+        // 儲存描述
+        saveDescriptionButton.addEventListener('click', () => {
+            savedDescription = modalDescription.value.trim();
+            descriptionModal.style.display = 'none';
+            alert("心得已儲存！");
+        });
+
+        // 確認上傳按鈕點擊事件
         uploadButton.addEventListener('click', () => {
             if (selectedFile) {
                 let fr = new FileReader();
@@ -299,7 +371,8 @@
                         type: selectedFile.type,
                         name: fileName, // 使用選定的檔案名稱
                         course: courseName, // 使用選定的或自定義的課程名稱
-                        year: yearSelect.value // 添加選擇的年度
+                        year: yearSelect.value, // 添加選擇的年度
+                        description: savedDescription // 添加已保存的描述
                     }
                     fetch(url, {
                         method: "POST",
@@ -310,21 +383,19 @@
                         console.log(data);
                         alert("檔案上傳成功！");
                         
-                        // 顯示上傳細節
-                        uploadedFileName.textContent = fileName;
-                        uploadTime.textContent = new Date().toLocaleString();
-                        uploadDetails.style.display = 'block';
-
                         // 重置表單
                         fileInput.value = "";
                         fileNameInput.value = "";
                         fileNameDisplay.textContent = "";
                         uploadButton.disabled = true;
+                        savedDescription = ""; // 清空已保存的描述
+                        modalDescription.value = ""; // 清空浮動描述框
+                        addDescriptionCheckbox.checked = false;
                     })
-                    // .catch(error => {
-                    //     console.error('Error:', error);
-                    //     alert("上傳失敗，請稍後再試！");
-                    // });
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("上傳失敗，請稍後再試！");
+                    });
                 });
                 fr.readAsDataURL(selectedFile);
             }
