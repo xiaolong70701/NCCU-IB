@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政大國貿所課程檔案上傳系統</title>
+    <link rel="icon" href="./uploader.svg" type="image/x-icon"/>
+    <style>
+        /* 設定背景圖片並模糊處理 */
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('./NCCU-commerce.png') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 創建模糊背景上方的透明容器 */
+        .register-container {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+            z-index: 2;
+            position: relative;
+        }
+
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        input[type="submit"],
+        input[type="button"] {
+            width: 70%;
+            padding: 10px;
+            background-color: #4a83c0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover,
+        input[type="button"]:hover {
+            background-color: #325376;
+        }
+
+        p {
+            font-size: 14px;
+            color: #555;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #successMessage {
+            color: green;
+            margin-top: 10px;
+        }
+
+        #errorMessage {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* 讓背景圖不模糊的效果 */
+        .background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('your-background-image.png') no-repeat center center fixed;
+            background-size: cover;
+            z-index: 1;
+            filter: blur(0px);
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container"></div>
+
+    <div class="register-container">
+        <h1>建立帳號</h1>
+        <input type="text" id="usernamee" placeholder="帳號">
+        <input type="password" id="passwordd" placeholder="密碼">
+        <input type="email" id="email" placeholder="電子郵件">
+        <span id="errorMessage"></span>
+        <input type="submit" value="建立帳號" onclick="AddRow()">
+        <p>已經有帳號了？<a href="index.html" style="color: #325376;">返回登入</a></p>
+    </div>
+
+    <div id="successMessage" style="display: none;" class="register-container">
+        <h2 style="color: black;">帳號已成功建立。</h2>
+        <p>請返回登入頁面使用您的新帳號。</p>
+        <a href="./index.html"><input type="button" value="返回登入"></a>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyz1VKuGWK4LTGNMPvBdq1sqeisZgAh6Js0DVtlE5eJ7lyJrd4MJcLDVFznhTdlSYdy/exec';
+    
+        async function AddRow() {
+            const username = document.getElementById("usernamee").value;
+            const password = document.getElementById("passwordd").value;
+            const email = document.getElementById("email").value;
+            const errorMessageElement = document.getElementById("errorMessage");
+            
+            // 清除先前的計時器
+            clearTimeout(errorMessageElement.timer);
+    
+            // 檢查是否有空欄位
+            if (username == "" || password == "" || email == "") {
+                showError("請填寫所有欄位");
+                return false;
+            }
+            
+            // 檢查密碼格式
+            if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[()[\]{}<>+\-*/?,.:;"'_\|~`!@#$%^&= ])[A-Za-z\d()[\]{}<>+\-*/?,.:;"'_\|~`!@#$%^&= ]{8,20}$/.test(password) || password.startsWith(" ") || password.endsWith(" ")) {
+                showError("密碼必須包含至少一個數字、字母及特殊符號，長度為8至20字元，且不能以空格開頭或結尾");
+                return false;
+            }
+    
+            // 檢查 email 格式
+            const emailDomain = email.split('@')[1];
+            const emailLocalPart = email.split('@')[0];
+    
+            if (!['gmail.com', 'g.nccu.edu.tw', 'nccu.edu.tw'].includes(emailDomain)) {
+                showError("請使用 Gmail 或學校網址註冊");
+                return false;
+            }
+    
+            if (emailDomain === 'g.nccu.edu.tw' || emailDomain === 'nccu.edu.tw') {
+                const emailParts = emailLocalPart.match(/(\d{3})(\d{3})(\d{3})/);
+                if (emailParts === null) {
+                    showError("學校郵箱的格式不正確");
+                    return false;
+                }
+                
+                const firstPart = parseInt(emailParts[1], 10);
+                const secondPart = emailParts[2];
+                
+                if (!(firstPart >= 110 && firstPart <= 113)) {
+                    showError("學號的前三碼必須介於110至113之間");
+                    return false;
+                }
+    
+                if (secondPart !== "351") {
+                    showError("學號的中間三碼必須是351");
+                    return false;
+                }
+            }
+    
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=register&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&email=${encodeURIComponent(email)}`
+                });
+    
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.querySelector('.register-container').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                console.error("Error during registration:", error);
+                showError("註冊過程中發生錯誤，請稍後再試。");
+            }
+        }
+    
+        function showError(message) {
+            const errorMessageElement = document.getElementById("errorMessage");
+            errorMessageElement.innerText = message;
+            errorMessageElement.style.display = 'block';
+            
+            // 設定2秒後消失
+            errorMessageElement.timer = setTimeout(() => {
+                errorMessageElement.innerText = '';
+                errorMessageElement.style.display = 'none';
+            }, 7000);
+        }
+    </script>    
+</body>
+</html>
