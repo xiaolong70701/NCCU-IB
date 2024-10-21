@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政大國貿所課程檔案上傳系統</title>
+    <link rel="icon" href="./uploader.svg" type="image/x-icon"/>
+    <style>
+        /* 設定背景圖片並模糊處理 */
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('./NCCU-commerce.png') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 創建模糊背景上方的透明容器 */
+        .login-container {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+            z-index: 2;
+            position: relative;
+        }
+
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            width: 70%;
+            padding: 10px;
+            background-color: #4a83c0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #325376;
+        }
+
+        p {
+            font-size: 14px;
+            color: #555;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #errorMessage {
+            color: red;
+            margin-top: 10px;
+            word-wrap: break-word;
+            white-space: pre-line;
+        }
+
+        /* 讓背景圖不模糊的效果 */
+        .background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('your-background-image.png') no-repeat center center fixed;
+            background-size: cover;
+            z-index: 1;
+            filter: blur(0px);
+        }
+
+        .remember-me-container {
+            text-align: left;
+            margin: 10px 0;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .remember-me-container input {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container"></div>
+
+    <div class="login-container">
+        <h1>上傳系統登入</h1>
+        <input type="text" id="username" placeholder="帳號">
+        <input type="password" id="password" placeholder="密碼">
+        <div class="remember-me-container">
+            <input type="checkbox" id="rememberMe">
+            <label for="rememberMe">記住登入資訊</label>
+        </div>
+        <span id="errorMessage"></span>
+        <br>
+        <input type="submit" value="登入系統" onclick="LoginUser()">
+        <br>
+        <p>如果您還沒有帳號，<a href="register.html" style="color: #325376;">點此建立新帳號</a></p>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyz1VKuGWK4LTGNMPvBdq1sqeisZgAh6Js0DVtlE5eJ7lyJrd4MJcLDVFznhTdlSYdy/exec';
+        const idleTimeLimit = 15 * 60 * 1000; // 10分鐘
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 檢查是否有記住的登入資訊
+            const rememberedUsername = localStorage.getItem('username');
+            const rememberedPassword = localStorage.getItem('password');
+
+            if (rememberedUsername && rememberedPassword) {
+                document.getElementById('username').value = rememberedUsername;
+                document.getElementById('password').value = rememberedPassword;
+                document.getElementById('rememberMe').checked = true;
+            }
+
+            startIdleTimer();
+        });
+
+        async function LoginUser() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const rememberMe = document.getElementById("rememberMe").checked;
+            const errorMessageElement = document.getElementById("errorMessage");
+
+            clearTimeout(errorMessageElement.timer);
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    if (rememberMe) {
+                        localStorage.setItem('username', username);
+                        localStorage.setItem('password', password);
+                    } else {
+                        localStorage.removeItem('username');
+                        localStorage.removeItem('password');
+                    }
+
+                    // 存储用户名以便在上传页面使用
+                    localStorage.setItem('loggedInUser', username);
+
+                    window.location.href = './upload.html';
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                console.error("Error during login:", error);
+                showError("登入過程中發生錯誤，請稍後再試。");
+            }
+        }
+
+        function showError(message) {
+            const errorMessageElement = document.getElementById("errorMessage");
+            errorMessageElement.innerText = message;
+            errorMessageElement.style.display = 'block';
+
+            errorMessageElement.timer = setTimeout(() => {
+                errorMessageElement.innerText = '';
+                errorMessageElement.style.display = 'none';
+            }, 2000);
+        }
+
+        function startIdleTimer() {
+            let idleTimer;
+            function resetTimer() {
+                clearTimeout(idleTimer);
+                idleTimer = setTimeout(logoutUser, idleTimeLimit);
+            }
+
+            function logoutUser() {
+                alert("閒置時間過長，將自動登出。");
+                window.location.href = 'login.html';
+            }
+
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeydown = resetTimer;
+        }
+    </script>
+</body>
+</html>
